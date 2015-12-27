@@ -175,7 +175,7 @@ def loadFrameData():
         starttime = seqends[frameset["after"]]
       else:
         print('WARNING: segment', name, 'specified non-existent segment', frameset["after"], 'as its "after" field!')
-        QMessageBox(QMessageBox.Warning, 'Incorrect after field', 'Segment' + name + 'specified non-existent segment' + str(frameset["after"]) + 'as its "after" field!').exec_()
+        QMessageBox(QMessageBox.Warning, 'Incorrect after field', 'Segment ' + name + ' specified non-existent segment ' + str(frameset["after"]) + ' as its "after" field!').exec_()
         errorhappened = True
     elif lastname:
       starttime = seqends[lastname]
