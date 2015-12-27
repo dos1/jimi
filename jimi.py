@@ -22,7 +22,7 @@ frameNr = 0
 
 def fileChanged(name):
   print("Detected changed file", name)
-  if name != "teledysk.yaml":
+  if name != "jimi.yaml":
     if name in imagecache:
       del imagecache[name]
     else:
@@ -142,9 +142,9 @@ def loadFrameData():
 
   print("Loading frame data...")
 
-  with open("teledysk.yaml") as f:
+  with open("jimi.yaml") as f:
     data = yaml.load(f)
-  watcher.addPath("teledysk.yaml")
+  watcher.addPath("jimi.yaml")
 
   seqends = {}
 
@@ -297,7 +297,7 @@ vbox.addWidget(button)
 widget = QWidget()
 widget.setLayout(vbox)    
 
-url = QUrl.fromLocalFile("/home/dos/jimi/wieko_konkurs_jimipl.wav")
+url = QUrl.fromLocalFile("/home/dos/wieko/wieko_konkurs_jimipl.wav")
 content = QMediaContent(url)
 player = QMediaPlayer()
 player.setMedia(content)
