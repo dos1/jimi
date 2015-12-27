@@ -16,8 +16,6 @@ def sigint_handler(*args):
 
 signal.signal(signal.SIGINT, sigint_handler)
 
-# TODO: ensure that arrows jump always by one frame
-
 imagecache = {}
 
 frameNr = 0

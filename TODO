@@ -1,0 +1,4 @@
+GUI: ensure that arrows jump always by one frame
+GUI: sidebar with segments (name, start, end; jump on click)
+format: dx/dy and ddx/ddy in segment format
+data: integrate the storyboard
