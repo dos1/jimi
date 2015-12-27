@@ -142,10 +142,18 @@ def loadFrameData():
 
   print("Loading frame data...")
 
-  with open("jimi.yaml") as f:
-    data = yaml.load(f)
-  watcher.addPath("jimi.yaml")
+  segmentlist.model().removeRows(0, segmentlist.model().rowCount())
 
+  try:
+    with open("jimi.yaml") as f:
+      data = yaml.load(f)
+  except:
+    print('ERROR: syntax error')
+    QMessageBox(QMessageBox.Critical, 'Syntax error', 'Could not parse YAML file!').exec_()
+    watcher.addPath("jimi.yaml")
+    return False
+
+  watcher.addPath("jimi.yaml")
   seqends = {}
 
   lastname = ""
@@ -153,7 +161,7 @@ def loadFrameData():
   
   errorhappened = False
 
-  for i in range(0, 5936):
+  for i in range(0, 5937):
     frames.append([])
   
   for frameset in data:
@@ -212,6 +220,7 @@ def loadFrameData():
   
     seqends[name] = endtime
     lastname = name
+    segmentlist.addItem(str(starttime) + "-" + str(endtime-1) + ": " + name)
     
   palette = QPalette()
   palette.setColor(QPalette.WindowText, QColor('black'))
@@ -231,6 +240,12 @@ def drawFrame(frame):
   scene.addPixmap(pixmap)
   view.fitInView(scene.sceneRect(), Qt.KeepAspectRatio)
   label.setText('Frame ' + str(frame) + ' / ' + str(frames[frame]))
+  for item in segmentlist.findItems('', Qt.MatchContains):
+    segstart, segend = item.text().split(': ')[0].split('-')
+    item.setSelected(False)
+    if int(segstart) <= frame <= int(segend):
+      item.setSelected(True)
+      segmentlist.scrollToItem(item)
 
 def advanceFrame():
     #global frameNr
@@ -246,7 +261,7 @@ def playPause():
         button.setText("Play")
     else:
         player.play()
-        timer.start(1000/60)
+        timer.start(1000/50)
         button.setText("Pause")
 
 def positionChanged():
@@ -258,9 +273,14 @@ def sliderReleased():
         player.setPosition(slider.sliderPosition())
     advanceFrame()
 
+def segmentSelected(text):
+    if not text:
+      return
+    start = int(text.split('-')[0])
+    player.setPosition(start * 1000 * 1/25)
 
 w = QMainWindow()
-w.resize(1303, 854)
+w.resize(1658, 854)
 w.setWindowTitle('Jimi.pl Editor')
 
 view = QGraphicsView()
@@ -288,8 +308,18 @@ view.setScene(scene)
 
 label = QLabel()
 
+segmentlist = QListWidget()
+segmentlist.setMaximumSize(QSize(350, 16777215))
+segmentlist.setSelectionMode(QAbstractItemView.ExtendedSelection)
+segmentlist.currentTextChanged.connect(segmentSelected)
+
 vbox = QVBoxLayout()
-vbox.addWidget(view)
+
+hbox = QHBoxLayout()
+hbox.addWidget(view)
+hbox.addWidget(segmentlist)
+
+vbox.addLayout(hbox)
 vbox.addWidget(label)
 vbox.addWidget(slider)
 vbox.addWidget(button)
