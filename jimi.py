@@ -20,6 +20,12 @@ imagecache = {}
 
 frameNr = 0
 
+animWidth = 0
+animHeight = 0
+animFPS = 0
+animAudio = None
+animFrameDir = None
+
 def fileChanged(name):
   print("Detected changed file", name)
   if name != "jimi.yaml":
@@ -42,13 +48,14 @@ class Frame:
   data = None
   path = None
 
-  def __init__(self, name, filename, x, y, scale, invert):
+  def __init__(self, name, filename, x, y, scale, invert, crop):
     self.x = x
     self.y = y
     self.scale = scale
     self.name = name
     self.filename = filename
-    path = "/home/dos/Dokumenty/jimi/"+filename
+    self.crop = crop
+    path = animFrameDir+"/"+filename
     if path not in imagecache:
       print("Loading", filename)
       imagecache[path] = QImage(path)
@@ -83,19 +90,19 @@ class Frame:
 
   def getScale(self):
     return self.scale
+  
+  def getCrop(self):
+    return self.crop
 
   def isCorrect(self):
     return self.data and not self.data.isNull()
 
 
-def fillDefaults(data):
+def fillDefaults(data, defaults):
+  data.update(dict(defaults, **data))
   if not 'name' in data:
       print('ERROR: approached a segment without name', data)
       QMessageBox(QMessageBox.Critical, 'Incorrect segment', 'Approached a segment without name!').exec_()
-      return False
-  if not 'framelen' in data:
-      print('ERROR: approached a segment without framelen', data)
-      QMessageBox(QMessageBox.Critical, 'Incorrect segment', 'Approached a segment without framelen!').exec_()
       return False
   if not 'from' in data:
       print('ERROR: approached a segment without from field', data)
@@ -105,14 +112,14 @@ def fillDefaults(data):
       print('ERROR: approached a segment without len nor to field', data)
       QMessageBox(QMessageBox.Critical, 'Incorrect segment', 'Approached a segment without len nor to field!').exec_()
       return False
+  if not 'framelen' in data:
+      data['framelen'] = 1
   if not 'filename' in data:
       data['filename'] = data['name']
   if not 'to' in data:
       data['to'] = data['from'] + data['len']
   if not 'len' in data:
       data['len'] = data['to'] - data['from'] + 1
-  if not 'after' in data:
-      data['after'] = None
   if not 'frameoffset' in data:
       data['frameoffset'] = 0
   if not 'offset' in data:
@@ -130,34 +137,50 @@ def fillDefaults(data):
   if not 'scale' in data:
       data['scale'] = 1
   if not 'invert' in data:
-      data['invert'] = True
+      data['invert'] = False
+  if not 'crop' in data:
+      data['crop'] = None
   return True
 
 seqends = None
+seqs = None
 frames = None
 
 def loadFrameData():
 
-  global seqends, frames
+  global seqs, seqends, frames, animWidth, animHeight, animFPS, animAudio, animFrameDir
 
   print("Loading frame data...")
 
   with open("jimi.yaml") as f:
-    data = yaml.load(f)
+    data = yaml.safe_load(f)
   watcher.addPath("jimi.yaml")
 
   seqends = {}
+  seqs = {}
 
   lastname = ""
   frames = []
   
   errorhappened = False
+  
+  animWidth = int(data["width"])
+  animHeight = int(data["height"])
+  animFPS = int(data["fps"])
+  animAudio = data["audio"]
+  animFrameDir = data['framedir']
 
-  for i in range(0, 5936):
+  for i in range(0, int(data["length"])):
     frames.append([])
   
-  for frameset in data:
-    if not fillDefaults(frameset):
+  for frameset in data["framesets"]:
+    default = data.get("default")
+    if not default:
+      default = {}
+    if frameset.get("inherit"):
+      if frameset["inherit"] in seqs:
+        default = dict(default, **seqs[frameset["inherit"]])
+    if not fillDefaults(frameset, default):
       errorhappened = True
       continue
     name = frameset["name"]
@@ -170,8 +193,10 @@ def loadFrameData():
     if frameset["filename"]:
       filename = frameset["filename"]
     starttime = 0
-    if frameset["after"]:
-      if frameset["after"] in seqends:
+    if "after" in frameset:
+      if not frameset["after"]:
+        startime = 0
+      elif frameset["after"] in seqends:
         starttime = seqends[frameset["after"]]
       else:
         print('WARNING: segment', name, 'specified non-existent segment', frameset["after"], 'as its "after" field!')
@@ -202,7 +227,9 @@ def loadFrameData():
           else:
             frame = frameset["to"]
       counter+=1
-      img = Frame(name, filename + str(frame).zfill(2) + ".png", frameset["x"], frameset["y"], frameset["scale"], frameset["invert"])
+      img = Frame(name, filename + str(frame).zfill(2) + ".png", frameset["x"], frameset["y"], frameset["scale"], frameset["invert"], frameset["crop"])
+      if i > len(frames) - 1:
+        frames.append([])
       frames[i].append(img)
       if not img.isCorrect():
         path = img.getPath()
@@ -211,6 +238,7 @@ def loadFrameData():
         errorhappened = True
   
     seqends[name] = endtime
+    seqs[name] = frameset
     lastname = name
     
   palette = QPalette()
@@ -220,11 +248,14 @@ def loadFrameData():
     palette.setColor(QPalette.WindowText, QColor('red'))
   label.setPalette(palette)
     
-  slider.setMaximum(max(seqends.values()) * 1000/25 + 1000)
+  slider.setSingleStep(1000//animFPS)
+  slider.setMaximum(max(seqends.values()) * 1000//animFPS + 1000)
   print("Frame data loaded!")
 
 def drawFrame(frame):
-  painter.fillRect( QRectF(0, 0, 1280, 720), QColor('black'))
+  if frame > len(frames) - 1:
+    frame = len(frames) - 1
+  painter.fillRect( QRectF(0, 0, animWidth, animHeight), QColor('black'))
   for img in frames[frame]:
     painter.drawImage(QRect(QPoint(img.getX(), img.getY()), img.getSize()*img.getScale()), img.getImage())
   scene.clear()
@@ -237,7 +268,7 @@ def advanceFrame():
     #frameNr += 1
     #print(frameNr)
     #drawFrame(frameNr)
-    drawFrame(int(player.position() / 1000 / (1/25)))
+    drawFrame(int(player.position() / 1000 / (1/animFPS)))
 
 def playPause():
     if player.state() == QMediaPlayer.PlayingState:
@@ -246,7 +277,7 @@ def playPause():
         button.setText("Play")
     else:
         player.play()
-        timer.start(1000/60)
+        timer.start(1000//60)
         button.setText("Pause")
 
 def positionChanged():
@@ -257,6 +288,7 @@ def sliderReleased():
     if player.position() != slider.sliderPosition() and slider.sliderPosition() != slider.maximum():
         player.setPosition(slider.sliderPosition())
     advanceFrame()
+
 
 
 w = QMainWindow()
@@ -270,19 +302,11 @@ button.clicked.connect(playPause)
 slider = QSlider()
 slider.setOrientation(Qt.Horizontal)
 slider.valueChanged.connect(sliderReleased)
-slider.setSingleStep(1000/25)
-
-pixmap	= QPixmap (QSize(1280,720))    
-painter	= QPainter (pixmap)    
-    
-painter.fillRect( QRectF(0, 0, 1280, 720), QColor('black'))
 
 timer = QTimer()
 timer.timeout.connect(advanceFrame)
 
 scene = QGraphicsScene()
-scene.addPixmap(pixmap)
-scene.setSceneRect(QRectF(pixmap.rect()))
 
 view.setScene(scene)
 
@@ -297,7 +321,9 @@ vbox.addWidget(button)
 widget = QWidget()
 widget.setLayout(vbox)    
 
-url = QUrl.fromLocalFile("/home/dos/wieko/wieko_konkurs_jimipl.wav")
+loadFrameData()
+
+url = QUrl.fromUserInput(animAudio, QDir.currentPath())
 content = QMediaContent(url)
 player = QMediaPlayer()
 player.setMedia(content)
@@ -305,9 +331,15 @@ player.positionChanged.connect(positionChanged)
 
 w.setCentralWidget(widget)
 
-loadFrameData()
-advanceFrame()
 QTimer.singleShot(0, advanceFrame)
+
+pixmap	= QPixmap (QSize(animWidth,animHeight))    
+painter	= QPainter (pixmap)    
+painter.fillRect( QRectF(0, 0, animWidth, animHeight), QColor('black'))
+scene.addPixmap(pixmap)
+scene.setSceneRect(QRectF(pixmap.rect()))
+
+advanceFrame()
 
 w.show()
 
