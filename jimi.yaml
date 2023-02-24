@@ -24,143 +24,153 @@
 
 # TODO: check positions of all segments with incorrect size
 
-- name: roberto
-  framelen: 5
-  from: 0
-  to: 2
-  len: 5
-  offset: 12
-  endoffset: -1
-  x: 685
-  y: 35
-- name: roberto-first
-  filename: roberto
-  framelen: 4
-  from: 0
-  to: 11
-  endoffset: -1
-  x: 685
-  y: 35
-- name: tomek
-  framelen: 4
-  from: 5
-  to: 9
-  frameoffset: 1
-  endoffset: -1
-- name: roberto-loop
-  filename: roberto
-  framelen: 5
-  from: 12
-  to: 14
-  offset: 27
-  frameoffset: -9
-  endoffset: -4
-  len: 13
-  x: 685
-  y: 35
-- name: roberto-end
-  filename: roberto
-  framelen: 4
-  from: 14
-  to: 18
-  x: 685
-  y: 35
-- name: mietek
-  framelen: 5
-  from: 1
-  to: 3
-  len: 21
-  frameoffset: -8
-  endoffset: -11
-  x: -565
-  y: 11
-- name: krolik
-  framelen: 4
-  from: 1
-  to: 15
-  x: 189
-- name: rob
-  framelen: 4
-  from: 1
-  to: 8
-  endoffset: -2
-- name: rob-loop
-  filename: rob
-  framelen: 4
-  from: 6
-  to: 8
-  len: 8
-- name: rob-end
-  filename: rob
-  framelen: 4
-  from: 7
-  to: 11
-  frameoffset: 2
-  endoffset: -2
-- name: sygit
-  framelen: 5
-  from: 1
-  to: 8
-  endoffset: -2
-  x: 633
-  y: -683
-- name: sygit-end
-  filename: sygit
-  framelen: 4
-  from: 8
-  to: 14
-  frameoffset: 1
-  endoffset: -1
-  x: 633
-  y: -683
-- name: jimi
-  framelen: 6
-  from: 1
-  to: 5
-  len: 8
-  endoffset: -1
-  x: -1600
-  y: 80
-  scale: 0.666666
-- name: jimturn
-  framelen: 3
-  from: 1
-  to: 6
-  x: 148
-  y: 147
-  scale: 0.8
-- name: jimiscale
-  framelen: 5
-  from: 1
-  to: 21
-- name: nutka
-  framelen: 5
-  from: 1
-  to: 12
-  after: jimturn
-- name: kupczyk
-  framelen: 5
-  from: 1
-  to: 16
-  endoffset: -3
-- name: zali
-  framelen: 4
-  from: 3
-  to: 33
-  frameoffset: 3
-  endoffset: -3
-- name: zali-nutka
-  filename: zali
-  framelen: 3
-  from: 34
-  to: 40
-- name: nsygit
-  framelen: 4
-  from: 3
-  to: 14
-  frameoffset: 1
-  loop: false
-- name: krol
-  framelen: 4
-  from: 5
-  to: 24
+width: 1280
+height: 720
+fps: 25
+audio: "/home/dos/ownCloud/Muzyka2/Archiwum/WIEKO/wieko_konkurs_jimipl.flac"
+framedir: "/home/dos/Dokumenty/jimi/"
+length: 5937
+default:
+  invert: true
+
+framesets:
+  - name: roberto
+    framelen: 5
+    from: 0
+    to: 2
+    len: 5
+    offset: 12
+    endoffset: -1
+    x: 685
+    y: 35
+  - name: roberto-first
+    filename: roberto
+    framelen: 4
+    from: 0
+    to: 11
+    endoffset: -1
+    x: 685
+    y: 35
+  - name: tomek
+    framelen: 4
+    from: 5
+    to: 9
+    frameoffset: 1
+    endoffset: -1
+  - name: roberto-loop
+    filename: roberto
+    framelen: 5
+    from: 12
+    to: 14
+    offset: 27
+    frameoffset: -9
+    endoffset: -4
+    len: 13
+    x: 685
+    y: 35
+  - name: roberto-end
+    filename: roberto
+    framelen: 4
+    from: 14
+    to: 18
+    x: 685
+    y: 35
+  - name: mietek
+    framelen: 5
+    from: 1
+    to: 3
+    len: 21
+    frameoffset: -8
+    endoffset: -11
+    x: -565
+    y: 11
+  - name: krolik
+    framelen: 4
+    from: 1
+    to: 15
+    x: 189
+  - name: rob
+    framelen: 4
+    from: 1
+    to: 8
+    endoffset: -2
+  - name: rob-loop
+    filename: rob
+    framelen: 4
+    from: 6
+    to: 8
+    len: 8
+  - name: rob-end
+    filename: rob
+    framelen: 4
+    from: 7
+    to: 11
+    frameoffset: 2
+    endoffset: -2
+  - name: sygit
+    framelen: 5
+    from: 1
+    to: 8
+    endoffset: -2
+    x: 633
+    y: -683
+  - name: sygit-end
+    filename: sygit
+    framelen: 4
+    from: 8
+    to: 14
+    frameoffset: 1
+    endoffset: -1
+    x: 633
+    y: -683
+  - name: jimi
+    framelen: 6
+    from: 1
+    to: 5
+    len: 8
+    endoffset: -1
+    x: -1600
+    y: 80
+    scale: 0.666666
+  - name: jimturn
+    framelen: 3
+    from: 1
+    to: 6
+    x: 148
+    y: 147
+    scale: 0.8
+  - name: jimiscale
+    framelen: 5
+    from: 1
+    to: 21
+  - name: nutka
+    framelen: 5
+    from: 1
+    to: 12
+    after: jimturn
+  - name: kupczyk
+    framelen: 5
+    from: 1
+    to: 16
+    endoffset: -3
+  - name: zali
+    framelen: 4
+    from: 3
+    to: 33
+    frameoffset: 3
+    endoffset: -3
+  - name: zali-nutka
+    filename: zali
+    framelen: 3
+    from: 34
+    to: 40
+  - name: nsygit
+    framelen: 4
+    from: 3
+    to: 14
+    frameoffset: 1
+    loop: false
+  - name: krol
+    framelen: 4
+    from: 5
+    to: 24
