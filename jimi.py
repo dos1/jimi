@@ -146,7 +146,7 @@ def loadFrameData():
 
   try:
     with open("jimi.yaml") as f:
-      data = yaml.load(f)
+      data = yaml.safe_load(f)
   except:
     print('ERROR: syntax error')
     QMessageBox(QMessageBox.Critical, 'Syntax error', 'Could not parse YAML file!').exec_()
@@ -229,7 +229,7 @@ def loadFrameData():
     palette.setColor(QPalette.WindowText, QColor('red'))
   label.setPalette(palette)
     
-  slider.setMaximum(max(seqends.values()) * 1000/25 + 1000)
+  slider.setMaximum(max(seqends.values()) * 1000//25 + 1000)
   print("Frame data loaded!")
 
 def drawFrame(frame):
@@ -261,7 +261,7 @@ def playPause():
         button.setText("Play")
     else:
         player.play()
-        timer.start(1000/50)
+        timer.start(1000//50)
         button.setText("Pause")
 
 def positionChanged():
@@ -277,7 +277,7 @@ def segmentSelected(text):
     if not text:
       return
     start = int(text.split('-')[0])
-    player.setPosition(start * 1000 * 1/25)
+    player.setPosition(start * 1000 * 1//25)
 
 w = QMainWindow()
 w.resize(1658, 854)
@@ -290,7 +290,7 @@ button.clicked.connect(playPause)
 slider = QSlider()
 slider.setOrientation(Qt.Horizontal)
 slider.valueChanged.connect(sliderReleased)
-slider.setSingleStep(1000/25)
+slider.setSingleStep(1000//25)
 
 pixmap	= QPixmap (QSize(1280,720))    
 painter	= QPainter (pixmap)    
